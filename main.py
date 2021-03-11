@@ -77,6 +77,38 @@ initial_state = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
                  0, 0, 0, 0, 0, 0]
 schedule = mlrose.GeomDecay(1000, 0.9, 1)
 
+#%%
+
+#%% tuning for SA
+curve_list = []
+decays = [0.999, 0.99]
+for d in decays:
+    schedule = mlrose.GeomDecay(decay=d)
+    _, _, curve = mlrose.simulated_annealing(
+        prob,
+        schedule=schedule,
+        max_attempts=MAX_ATTEMPTS,
+        max_iters=500,
+        curve=True,
+        random_state=RANDOM_SEED,
+    )
+    curve_list.append(curve)
+
+df = pd.DataFrame(curve_list).transpose()
+df.columns = decays
+df.plot()
+plt.xlabel("Iteration")
+plt.ylabel("Fitness")
+plt.title("FlipFlop: Fitness curve vs decay rate in SA")
+plt.savefig("output/flipflop_sa_decay.png")
+plt.close()
+
+print(df.max())
+
+
+
+#%%
+
 # prob - Object containing fitness function optimization problem to be solved.
 # For example, DiscreteOpt(), ContinuousOpt() or TSPOpt()
 # max_attempts - Maximum number of attempts to find a better neighbor at each step
@@ -188,7 +220,7 @@ for iterations in [1,
     print(f'MIMIC finished for {iterations} iterations.')
 
 # Create multiple plots at once
-fig, ax = plt.subplot(1, 2)
+# fig, ax = plt.subplot(1, 2)
 
 # Build RHC line plot for Fitness for Iteration count
 fitness_results[RHC_KEY] = pd.DataFrame(fitness_results[RHC_KEY],
@@ -204,6 +236,13 @@ sns.lineplot(data=fitness_results[RHC_KEY],
              hue=ALGORITHM_AXIS,
              ax=ax[FITNESS_PLOT])
 
+
+sns.set_style("darkgrid", {'axes.axisbelow': True})
+fig.show()
+
+
+
+
 # Build RHC line plot for Time for Iteration count
 # sns.lineplot(data=fitness_results[RHC_KEY],
 #              x=ITERATIONS_AXIS,
@@ -214,45 +253,45 @@ sns.lineplot(data=fitness_results[RHC_KEY],
 #              ax=ax[TIME_PLOT])
 
 # Build SA line plot for Fitness for Iteration count
-fitness_results[SA_KEY] = pd.DataFrame(fitness_results[SA_KEY], columns=[ITERATIONS_AXIS,
-                                                                         FITNESS_AXIS,
-                                                                         TIME_AXIS])
-pd[ALGORITHM_AXIS] = SA_ALGORITHM * fitness_results[SA_KEY].count()
-sns.lineplot(data=fitness_results[SA_KEY],
-             x=ITERATIONS_AXIS,
-             y=FITNESS_AXIS,
-             marker='o',
-             legend=True,
-             hue=ALGORITHM_AXIS,
-             ax=ax[FITNESS_PLOT])
-
-# Build GA line plot for Fitness for Iteration count
-fitness_results[GA_KEY] = pd.DataFrame(fitness_results[GA_KEY], columns=[ITERATIONS_AXIS,
-                                                                         FITNESS_AXIS,
-                                                                         TIME_AXIS])
-pd[ALGORITHM_AXIS] = GA_ALGORITHM * fitness_results[GA_KEY].count()
-sns.lineplot(data=fitness_results[GA_KEY],
-             x=ITERATIONS_AXIS,
-             y=FITNESS_AXIS,
-             marker='o',
-             legend=True,
-             hue=ALGORITHM_AXIS,
-             ax=ax[FITNESS_PLOT])
-
-# Build MIMIC line plot for Fitness for Iteration count
-fitness_results[MIMIC_KEY] = pd.DataFrame(fitness_results[MIMIC_KEY],
-                                          columns=[ITERATIONS_AXIS,
-                                                   FITNESS_AXIS,
-                                                   TIME_AXIS])
-pd[ALGORITHM_AXIS] = MIMIC_ALGORITHM * fitness_results[MIMIC_KEY].count()
-sns.lineplot(data=fitness_results[MIMIC_KEY],
-             x=ITERATIONS_AXIS,
-             y=FITNESS_AXIS,
-             marker='o',
-             legend=True,
-             hue=ALGORITHM_AXIS,
-             ax=ax[FITNESS_PLOT])
-
-# Create grid background.
-sns.set_style("darkgrid", {'axes.axisbelow': True})
-fig.show()
+# fitness_results[SA_KEY] = pd.DataFrame(fitness_results[SA_KEY], columns=[ITERATIONS_AXIS,
+#                                                                          FITNESS_AXIS,
+#                                                                          TIME_AXIS])
+# pd[ALGORITHM_AXIS] = SA_ALGORITHM * fitness_results[SA_KEY].count()
+# sns.lineplot(data=fitness_results[SA_KEY],
+#              x=ITERATIONS_AXIS,
+#              y=FITNESS_AXIS,
+#              marker='o',
+#              legend=True,
+#              hue=ALGORITHM_AXIS,
+#              ax=ax[FITNESS_PLOT])
+#
+# # Build GA line plot for Fitness for Iteration count
+# fitness_results[GA_KEY] = pd.DataFrame(fitness_results[GA_KEY], columns=[ITERATIONS_AXIS,
+#                                                                          FITNESS_AXIS,
+#                                                                          TIME_AXIS])
+# pd[ALGORITHM_AXIS] = GA_ALGORITHM * fitness_results[GA_KEY].count()
+# sns.lineplot(data=fitness_results[GA_KEY],
+#              x=ITERATIONS_AXIS,
+#              y=FITNESS_AXIS,
+#              marker='o',
+#              legend=True,
+#              hue=ALGORITHM_AXIS,
+#              ax=ax[FITNESS_PLOT])
+#
+# # Build MIMIC line plot for Fitness for Iteration count
+# fitness_results[MIMIC_KEY] = pd.DataFrame(fitness_results[MIMIC_KEY],
+#                                           columns=[ITERATIONS_AXIS,
+#                                                    FITNESS_AXIS,
+#                                                    TIME_AXIS])
+# pd[ALGORITHM_AXIS] = MIMIC_ALGORITHM * fitness_results[MIMIC_KEY].count()
+# sns.lineplot(data=fitness_results[MIMIC_KEY],
+#              x=ITERATIONS_AXIS,
+#              y=FITNESS_AXIS,
+#              marker='o',
+#              legend=True,
+#              hue=ALGORITHM_AXIS,
+#              ax=ax[FITNESS_PLOT])
+#
+# # Create grid background.
+# sns.set_style("darkgrid", {'axes.axisbelow': True})
+# fig.show()
